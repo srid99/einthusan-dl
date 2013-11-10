@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from einthusan import einthusan_dl
+
+einthusan_dl.main()
