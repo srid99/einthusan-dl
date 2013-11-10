@@ -14,7 +14,7 @@ ensure that Python executable location is added to the PATH environment variable
 ### Install any missing dependencies.
 
 Make sure you have installed and/or updated all of your dependencies 
-according to the `requirements.txt` file as described above.
+according to the `requirements.txt` file.
 
 You can use [`pip`][2] to install the dependencies. To do so you have to install
 [`pip`][2], as in it is the current [preferred method][3].  
