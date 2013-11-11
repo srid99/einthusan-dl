@@ -6,7 +6,7 @@ For downloading movies from Einthusan.com website.
 
 Examples:
   einthusan-dl <url>
-  einthusan-dl <url> -o --path /tmp/ --wget
+  einthusan-dl <url1> <url2> --path /tmp/downloads --wget --log /tmp/output.log
 """
 
 import argparse
@@ -16,6 +16,8 @@ import errno
 import os
 
 from urlparse import urlparse, parse_qs
+from datetime import datetime
+from ago import human
 
 import requests
 
@@ -120,8 +122,9 @@ def start_download_movie(downloader,
 
         if not skip_download:
             logging.info('Downloading: %s', movie_name)
+            start = datetime.now()
             downloader.download(movie_url, filename)
-            logging.info('Succesfully downloaded the movie %s', movie_name)
+            logging.info('Successfully downloaded the movie %s. Took %s', movie_name, human(start, past_tense='{0}'))
         else:
             logging.info('Skipping downloading the movie %s since the option "--skip-download" is enabled.', movie_name)
     else:
