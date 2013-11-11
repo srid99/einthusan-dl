@@ -216,6 +216,8 @@ def main():
             download_movie(args, movie_page_url)
         except requests.exceptions.HTTPError as e:
             logging.error('HTTPError %s', e)
+        except BaseException as e:
+            logging.error('Unhandled exception: %s', e)
 
 if __name__ == '__main__':
     main()
