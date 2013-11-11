@@ -50,7 +50,18 @@ http://www.einthusan.com/movies/watch.php?tamilmoviesonline={MOVIE-NAME}&lang=ta
 Note that the above sample url is based on a tamil movie. Similarly for other languages (hindi/malayalam/telugu)
 the word 'tamil' should get replaced with their respective languages.
 
+## Disclaimer:
+
+As per the [`Terms of Service`][4] from Einthusan.com,
+
+> "You may not either directly or through the use of any device,
+software, internet site, web-based service, or other means copy, download, stream capture, reproduce, duplicate,
+archive, distribute, upload, publish, modify, translate, broadcast, perform, display, sell, transmit or retransmit
+the Content unless expressly permitted by Einthusan.com in writing."
+
+So be aware of this and use the script on your own risk :)
 
 [1]: https://www.einthusan.com
 [2]: http://www.pip-installer.org/en/latest/
 [3]: http://python-distribute.org/pip_distribute.png
+[4]: http://www.einthusan.com/terms/
