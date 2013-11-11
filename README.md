@@ -3,7 +3,7 @@
 [Einthusan][1] is a premium south asian video publisher providing
 movies and music videos on-demand.
 
-This script helps us to download movies from Einthusan site.
+This script [einthusan-dl] comes handy if you want to download movies from Einthusan site.
 
 
 ## Instructions
@@ -37,6 +37,9 @@ as well as any additional parameters:
     Specify log path:          		einthusan-dl --log=C:\downloads\logs\output.log "<movie_url1>"
     Display help:                   einthusan-dl --help
 
+**Note:** If you have noticed the movie url's are enclosed with double quotes("). We need this to avoid the problems with
+uri escaped characters (like &, +, @, $ and so on).
+
 ### How to get the movie url ?
 
 On clicking any movie in Einthusan site, now you must be able to copy the url from the address bar.
@@ -44,7 +47,8 @@ Make sure the url matches with below format,
 
 http://www.einthusan.com/movies/watch.php?tamilmoviesonline={MOVIE-NAME}&lang=tamil&id={MOVIE-ID}
 
-Note that the above sample url is based on a tamil movie. Similarly for other languages (hindi/malayalam/telugu) the word 'tamil' should get replaced.
+Note that the above sample url is based on a tamil movie. Similarly for other languages (hindi/malayalam/telugu)
+the word 'tamil' should get replaced with their respective languages.
 
 
 [1]: https://www.einthusan.com
