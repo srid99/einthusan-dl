@@ -66,12 +66,19 @@ def get_movie_url(session, page):
 
     scripts = soup('script',{'type' : 'text/javascript'})
 
+    logging.debug('Totally %d script tags found', len(scripts))
+
     for script in scripts:
         content = script.get_text().strip()
         if content.startswith('jwplayer'):
-            jsondata = content.replace('jwplayer("mediaplayer").setup(', '')[:-2].replace('\'', '"')
-            return json.loads(jsondata)['file']
-
+            logging.debug('Matching script tag found with jwplayer informations')
+            data = content.replace('jwplayer("mediaplayer").setup(', '')[:-2].replace('\'', '"')
+            logging.debug('Input json data (yet to decode) passed to the jwplayer => %s', data)
+            jsondata = json.loads(data)
+            logging.debug('Able to parse the data to json data => %s', jsondata)
+            return jsondata['file']
+        else:
+            logging.debug('Script tag doesn\'t have jwplayer informations. Skipping...')
     return
 
 def get_movie_name(movie_page_url):
@@ -99,6 +106,7 @@ def start_download_movie(downloader,
     dest = os.path.join(path, movie_name)
 
     if not os.path.exists(dest):
+        logging.debug('Destination path %s not exists. Let\'s create one.', dest)
         mkdir_p(dest)
 
     filename = os.path.join(dest, movie_name + '.mp4')
@@ -107,6 +115,9 @@ def start_download_movie(downloader,
         if not skip_download:
             logging.info('Downloading: %s', movie_name)
             downloader.download(movie_url, filename)
+            logging.info('Downloading the movie %s was succesful', movie_name)
+        else:
+            logging.info('Skipping downloading the movie %s since the option "--skip-download" is enabled.', movie_name)
     else:
         logging.info('%s already downloaded', filename)
 
@@ -149,9 +160,9 @@ def parse_args():
     # Initialize the logging system first so that other functions
     # can use it right away
     if args.debug:
-        logging.basicConfig(filename=args.logfile, level=logging.DEBUG, format='%(name)s[%(funcName)s] %(message)s')
+        logging.basicConfig(filename=args.logfile, level=logging.DEBUG, format='%(asctime)s %(name)s[%(funcName)s] %(message)s')
     else:
-        logging.basicConfig(filename=args.logfile, level=logging.INFO, format='%(message)s')
+        logging.basicConfig(filename=args.logfile, level=logging.INFO, format='%(asctime)s %(message)s')
 
     return args
 
