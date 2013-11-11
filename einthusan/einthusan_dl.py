@@ -137,6 +137,7 @@ def parse_args():
 
     # optional
     parser.add_argument('-o', '--overwrite', dest='overwrite', action='store_true', default=False, help='whether existing files should be overwritten (default: False)')
+    parser.add_argument('-l', '--log', dest='logfile', action='store', default=None, help='logs to the specified logfile (default: logs to console)')
     parser.add_argument('--wget', dest='wget', action='store', nargs='?', const='wget', default=None, help='use wget for downloading, optionally specify wget bin')
     parser.add_argument('--curl', dest='curl', action='store', nargs='?', const='curl', default=None, help='use curl for downloading, optionally specify curl bin')
     parser.add_argument('--skip-download', dest='skip_download', action='store_true', default=False, help='for debugging: skip actual downloading of files')
@@ -148,9 +149,9 @@ def parse_args():
     # Initialize the logging system first so that other functions
     # can use it right away
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG, format='%(name)s[%(funcName)s] %(message)s')
+        logging.basicConfig(filename=args.logfile, level=logging.DEBUG, format='%(name)s[%(funcName)s] %(message)s')
     else:
-        logging.basicConfig(level=logging.INFO, format='%(message)s')
+        logging.basicConfig(filename=args.logfile, level=logging.INFO, format='%(message)s')
 
     return args
 
