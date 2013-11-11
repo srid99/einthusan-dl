@@ -34,6 +34,7 @@ as well as any additional parameters:
     Multiple movies:                einthusan-dl "<movie_url1>" "<movie_url2>" "<movie_url3>"
     Specify external downloader:    einthusan-dl "<movie_url1>" --wget
     Specify download path:          einthusan-dl --path=C:\downloads\movies "<movie_url1>"
+    Specify log path:          		einthusan-dl --log=C:\downloads\logs\output.log "<movie_url1>"
     Display help:                   einthusan-dl --help
 
 ### How to get the movie url ?
