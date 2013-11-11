@@ -10,7 +10,7 @@ Examples:
 """
 
 import argparse
-import json
+import yaml
 import logging
 import errno
 import os
@@ -64,21 +64,22 @@ def get_movie_url(session, page):
 
     soup = BeautifulSoup(page)
 
-    scripts = soup('script',{'type' : 'text/javascript'})
+    scripts = soup('script', {'type': 'text/javascript'})
 
     logging.debug('Totally %d script tags found', len(scripts))
 
     for script in scripts:
         content = script.get_text().strip()
         if content.startswith('jwplayer'):
-            logging.debug('Matching script tag found with jwplayer informations')
-            data = content.replace('jwplayer("mediaplayer").setup(', '')[:-2].replace('\'', '"')
-            logging.debug('Input json data (yet to decode) passed to the jwplayer => %s', data)
-            jsondata = json.loads(data)
+            logging.debug('Matching script tag found with jwplayer informations => %s', content)
+            data = content.replace('jwplayer("mediaplayer").setup(', '')[:-2]
+            # Using yaml, since the data is not a valid json data and luckily yaml supports it
+            jsondata = yaml.load(data)
             logging.debug('Able to parse the data to json data => %s', jsondata)
             return jsondata['file']
         else:
             logging.debug('Script tag doesn\'t have jwplayer informations. Skipping...')
+
     return
 
 def get_movie_name(movie_page_url):
@@ -103,6 +104,8 @@ def start_download_movie(downloader,
 
     movie_name = get_movie_name(movie_page_url)
 
+    logging.debug('Start downloading movie %s from url %s', movie_name, movie_url)
+
     dest = os.path.join(path, movie_name)
 
     if not os.path.exists(dest):
@@ -112,10 +115,13 @@ def start_download_movie(downloader,
     filename = os.path.join(dest, movie_name + '.mp4')
 
     if overwrite or not os.path.exists(filename):
+        if os.path.exists(filename):
+            logging.info('File already exists and will be overwritten since option "--overwrite" is enabled.')
+
         if not skip_download:
             logging.info('Downloading: %s', movie_name)
             downloader.download(movie_url, filename)
-            logging.info('Downloading the movie %s was succesful', movie_name)
+            logging.info('Succesfully downloaded the movie %s', movie_name)
         else:
             logging.info('Skipping downloading the movie %s since the option "--skip-download" is enabled.', movie_name)
     else:
