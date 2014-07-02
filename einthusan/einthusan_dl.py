@@ -10,7 +10,6 @@ Examples:
 """
 
 import argparse
-import yaml
 import logging
 import errno
 import os
