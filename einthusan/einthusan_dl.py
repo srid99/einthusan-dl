@@ -71,30 +71,24 @@ def get_movie_url(session, page):
     logging.debug('Totally %d script tags found', len(scripts))
 
     for script in scripts:
-        content = script.get_text().strip()
-        if content.startswith('jwplayer'):
-            logging.debug('Matching script tag found with jwplayer informations => %s', content)
-            data = content.replace('jwplayer("mediaplayer").setup(', '')[:-2]
-            # Using yaml, since the data is not a valid json data and luckily yaml supports it
-            jsondata = yaml.load(data)
-            logging.debug('Able to parse the data to json data => %s', jsondata)
-            return jsondata['file']
+        content = script.get_text().strip()                
+        if content.startswith('var adsindex'):
+            url =  content.split("file")[1].split("'")[2]            
+            logging.debug('Able to parse the data to json data => %s', url)
+            return url
         else:
             logging.debug('Script tag doesn\'t have jwplayer informations. Skipping...')
 
     return
 
-def get_movie_name(movie_page_url):
-    """
-    Get movie name from the url.
-    """
+def get_movie_name(page):
 
-    qs = parse_qs(urlparse(movie_page_url).query)
-    movie_name_key = qs['lang'][0] + 'moviesonline'
-    return qs[movie_name_key][0]
+    soup = BeautifulSoup(page)
+    name = soup.findAll("a", {"class": 'movie-title'})[0].get_text()
+    return name
 
 def start_download_movie(downloader,
-                      movie_page_url,
+                      movie_name,
                       movie_url,
                       overwrite=False,
                       skip_download=False,
@@ -103,8 +97,6 @@ def start_download_movie(downloader,
     """
     Downloads the movie from the given url.
     """
-
-    movie_name = get_movie_name(movie_page_url)
 
     logging.debug('Start downloading movie %s from url %s', movie_name, movie_url)
 
@@ -188,14 +180,18 @@ def download_movie(args, movie_page_url):
     page = get_movie_page(session, movie_page_url)
 
     # parse the page and get the url
-    movie_url = get_movie_url(session, page)
+    movie_url = get_movie_url(session, page)    
+
+    movie_name = get_movie_name(page)
+    
 
     downloader = get_downloader(session, args)
+
 
     # obtain the resources
     start_download_movie(
         downloader,
-        movie_page_url,
+        movie_name,
         movie_url,
         args.overwrite,
         args.skip_download,
