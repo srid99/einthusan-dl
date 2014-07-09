@@ -71,9 +71,10 @@ def get_movie_url(session, page):
 
     for script in scripts:
         content = script.get_text().strip()                
-        if content.startswith('var adsindex'):
-            url =  content.split("file")[1].split("'")[2]            
-            logging.debug('Able to parse the data to json data => %s', url)
+        if 'jwplayer' in content:
+            logging.debug('Matching script tag found with jwplayer information\'s => %s', content)
+            url =  content.split("file")[1].split("'")[2]
+            logging.debug('Able to retrieve the movie url => %s', url)
             return url
         else:
             logging.debug('Script tag doesn\'t have jwplayer informations. Skipping...')
@@ -211,6 +212,8 @@ def main():
             download_movie(args, movie_page_url)
         except requests.exceptions.HTTPError as e:
             logging.error('HTTPError %s', e)
+        except KeyboardInterrupt:
+            logging.error('Downloading interrupted!')
         except BaseException as e:
             logging.error('Unhandled exception: %s', e)
 
