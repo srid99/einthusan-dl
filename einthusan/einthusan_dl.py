@@ -13,25 +13,19 @@ import argparse
 import logging
 import errno
 import os
-
-from urlparse import urlparse, parse_qs
 from datetime import datetime
-from ago import human
 
+from ago import human
 import requests
 
 try:
     from BeautifulSoup import BeautifulSoup
 except ImportError:
     from bs4 import BeautifulSoup as BeautifulSoup_
-    try:
-        # Use html5lib for parsing if available
-        import html5lib
-        BeautifulSoup = lambda page: BeautifulSoup_(page, 'html5lib')
-    except ImportError:
-        BeautifulSoup = lambda page: BeautifulSoup_(page, 'html.parser')
+    BeautifulSoup = lambda page: BeautifulSoup_(page, 'html.parser')
 
 from .downloaders import get_downloader
+
 
 def get_page(session, url):
     """
@@ -48,6 +42,7 @@ def get_page(session, url):
 
     return r.text
 
+
 def get_movie_page(session, movie_page_url):
     """
     Get the movie webpage.
@@ -58,7 +53,8 @@ def get_movie_page(session, movie_page_url):
 
     return page
 
-def get_movie_url(session, page):
+
+def get_movie_url(page):
     """
     Parses a Einthusan movie page and retrieves the movie url.
     """
@@ -70,10 +66,10 @@ def get_movie_url(session, page):
     logging.debug('Totally %d script tags found', len(scripts))
 
     for script in scripts:
-        content = script.get_text().strip()                
+        content = script.get_text().strip()
         if 'jwplayer' in content:
             logging.debug('Matching script tag found with jwplayer information\'s => %s', content)
-            url =  content.split("file")[1].split("'")[2]
+            url = content.split("file")[1].split("'")[2]
             logging.debug('Able to retrieve the movie url => %s', url)
             return url
         else:
@@ -81,19 +77,20 @@ def get_movie_url(session, page):
 
     return
 
-def get_movie_name(page):
 
+def get_movie_name(page):
     soup = BeautifulSoup(page)
     name = soup.findAll("a", {"class": 'movie-title'})[0].get_text()
     return name
 
+
 def start_download_movie(downloader,
-                      movie_name,
-                      movie_url,
-                      overwrite=False,
-                      skip_download=False,
-                      path=''
-                      ):
+                         movie_name,
+                         movie_url,
+                         overwrite=False,
+                         skip_download=False,
+                         path=''
+                         ):
     """
     Downloads the movie from the given url.
     """
@@ -124,6 +121,7 @@ def start_download_movie(downloader,
 
     return
 
+
 def mkdir_p(path, mode=0o777):
     """
     Create subdirectory hierarchy given in the paths argument.
@@ -137,6 +135,7 @@ def mkdir_p(path, mode=0o777):
         else:
             raise
 
+
 def parse_args():
     """
     Parse the arguments/options passed to the program on the command line.
@@ -148,20 +147,27 @@ def parse_args():
     parser.add_argument('url', action='store', nargs='+', help='url(s) of the movie to be downloaded')
 
     # optional
-    parser.add_argument('-o', '--overwrite', dest='overwrite', action='store_true', default=False, help='whether existing files should be overwritten (default: False)')
-    parser.add_argument('-l', '--log', dest='logfile', action='store', default=None, help='logs to the specified logfile (default: logs to console)')
-    parser.add_argument('--wget', dest='wget', action='store', nargs='?', const='wget', default=None, help='use wget for downloading, optionally specify wget bin')
-    parser.add_argument('--curl', dest='curl', action='store', nargs='?', const='curl', default=None, help='use curl for downloading, optionally specify curl bin')
-    parser.add_argument('--skip-download', dest='skip_download', action='store_true', default=False, help='for debugging: skip actual downloading of files')
+    parser.add_argument('-o', '--overwrite', dest='overwrite', action='store_true', default=False,
+                        help='whether existing files should be overwritten (default: False)')
+    parser.add_argument('-l', '--log', dest='logfile', action='store', default=None,
+                        help='logs to the specified logfile (default: logs to console)')
+    parser.add_argument('--wget', dest='wget', action='store', nargs='?', const='wget', default=None,
+                        help='use wget for downloading, optionally specify wget bin')
+    parser.add_argument('--curl', dest='curl', action='store', nargs='?', const='curl', default=None,
+                        help='use curl for downloading, optionally specify curl bin')
+    parser.add_argument('--skip-download', dest='skip_download', action='store_true', default=False,
+                        help='for debugging: skip actual downloading of files')
     parser.add_argument('--path', dest='path', action='store', default='', help='path to save the file')
-    parser.add_argument('--debug', dest='debug', action='store_true', default=False, help='print lots of debug information')
+    parser.add_argument('--debug', dest='debug', action='store_true', default=False,
+                        help='print lots of debug information')
 
     args = parser.parse_args()
 
     # Initialize the logging system first so that other functions
     # can use it right away
     if args.debug:
-        logging.basicConfig(filename=args.logfile, level=logging.DEBUG, format='%(asctime)s %(name)s[%(funcName)s] %(message)s')
+        logging.basicConfig(filename=args.logfile, level=logging.DEBUG,
+                            format='%(asctime)s %(name)s[%(funcName)s] %(message)s')
     else:
         logging.basicConfig(filename=args.logfile, level=logging.INFO, format='%(asctime)s %(message)s')
 
@@ -180,13 +186,11 @@ def download_movie(args, movie_page_url):
     page = get_movie_page(session, movie_page_url)
 
     # parse the page and get the url
-    movie_url = get_movie_url(session, page)    
+    movie_url = get_movie_url(page)
 
     movie_name = get_movie_name(page)
-    
 
     downloader = get_downloader(session, args)
-
 
     # obtain the resources
     start_download_movie(
@@ -198,6 +202,7 @@ def download_movie(args, movie_page_url):
         args.path)
 
     return
+
 
 def main():
     """
@@ -216,6 +221,7 @@ def main():
             logging.error('Downloading interrupted!')
         except BaseException as e:
             logging.error('Unhandled exception: %s', e)
+
 
 if __name__ == '__main__':
     main()
