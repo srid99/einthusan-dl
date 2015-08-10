@@ -16,8 +16,7 @@ ensure that Python executable location is added to the PATH environment variable
 Make sure you have installed and/or updated all of your dependencies 
 according to the `requirements.txt` file.
 
-You can use [`pip`][2] to install the dependencies. To do so you have to install
-[`pip`][2], as in it is the current [preferred method][3].  
+You can use [`pip`][2] to install the dependencies. Follow the methods described in the link to install pip.
 
 Once you have pip installed you can run the below command to install the dependencies,
 
@@ -62,6 +61,6 @@ the Content unless expressly permitted by Einthusan.com in writing."
 So be aware of this and use the script on your own risk :)
 
 [1]: https://www.einthusan.com
-[2]: http://www.pip-installer.org/en/latest/
+[2]: https://pip.pypa.io/en/latest/installing.html#install-pip
 [3]: http://python-distribute.org/pip_distribute.png
 [4]: http://www.einthusan.com/terms/
