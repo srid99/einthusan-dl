@@ -5,7 +5,6 @@ from __future__ import print_function
 import logging
 import math
 import os
-import requests
 import subprocess
 import sys
 import time
@@ -102,6 +101,7 @@ class WgetDownloader(ExternalDownloader):
         return [self.bin, url, '-O', filename, '--no-cookies',
                 '--no-check-certificate']
 
+
 class CurlDownloader(ExternalDownloader):
     """
     Uses curl, which is robust and gives nice visual feedback.
@@ -111,6 +111,7 @@ class CurlDownloader(ExternalDownloader):
 
     def _create_command(self, url, filename):
         return [self.bin, url, '-k', '-#', '-L', '-o', filename]
+
 
 def format_bytes(bytes):
     """
@@ -167,7 +168,7 @@ class DownloadProgress(object):
         if self._total is None:
             return '--%'
         percentage = int(float(self._current) / float(self._total) * 100.0)
-        done = int(percentage/2)
+        done = int(percentage / 2)
         return '[{0: <50}] {1}%'.format(done * '#', percentage)
 
     def calc_speed(self):
@@ -212,7 +213,7 @@ class NativeDownloader(Downloader):
             r = self.session.get(url, stream=True)
 
             if r.status_code is not 200:
-                logging.warn(
+                logging.warning(
                     'Probably the file is missing from the AWS repository...'
                     ' waiting.')
 
@@ -244,7 +245,7 @@ class NativeDownloader(Downloader):
             return True
 
         if attempts_count == 5:
-            logging.warn('Skipping, can\'t download file ...')
+            logging.warning('Skipping, can\'t download file ...')
             logging.error(error_msg)
             return False
 
