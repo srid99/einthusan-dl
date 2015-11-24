@@ -10,13 +10,15 @@ Examples:
 """
 
 import argparse
-import logging
 import errno
+import logging
 import os
 from datetime import datetime
 
-from ago import human
 import requests
+from ago import human
+
+get_movie_api_url = "http://cdn.einthusan.com/geturl/{0}/hd/London%2CToronto%2CDallas%2CWashington%2CSan%2CSydney/"
 
 try:
     from BeautifulSoup import BeautifulSoup
@@ -54,28 +56,20 @@ def get_movie_page(session, movie_page_url):
     return page
 
 
-def get_movie_url(page):
+def get_movie_url(session, page):
     """
     Parses a Einthusan movie page and retrieves the movie url.
     """
 
     soup = BeautifulSoup(page)
 
-    scripts = soup('script', {'type': 'text/javascript'})
+    movie_id = soup.find('div', {'id': 'mediaplayer'})['data-movieid']
+    movie_url_api = get_movie_api_url.format(movie_id)
+    movie_url = get_page(session, movie_url_api)
 
-    logging.debug('Totally %d script tags found', len(scripts))
+    logging.info('Movie url: %s', movie_url)
 
-    for script in scripts:
-        content = script.get_text().strip()
-        if 'jwplayer' in content:
-            logging.debug('Matching script tag found with jwplayer information\'s => %s', content)
-            url = content.split("file")[1].split("'")[2]
-            logging.debug('Able to retrieve the movie url => %s', url)
-            return url
-        else:
-            logging.debug('Script tag doesn\'t have jwplayer informations. Skipping...')
-
-    return
+    return movie_url
 
 
 def get_movie_name(page):
@@ -186,7 +180,7 @@ def download_movie(args, movie_page_url):
     page = get_movie_page(session, movie_page_url)
 
     # parse the page and get the url
-    movie_url = get_movie_url(page)
+    movie_url = get_movie_url(session, page)
 
     movie_name = get_movie_name(page)
 
