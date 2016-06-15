@@ -34,6 +34,7 @@ def get_page(session, url):
     Download an HTML page using the requests session.
     """
 
+    session.headers.update({'Referer': 'http://www.einthusan.com'})
     r = session.get(url)
 
     try:
