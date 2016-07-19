@@ -14,8 +14,11 @@ import errno
 import logging
 import os
 from datetime import datetime
+import re
+from urlparse import urljoin
 
 import requests
+requests.utils.default_user_agent = lambda: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36"
 from ago import human
 
 get_movie_api_url = "http://cdn.einthusan.com/geturl/{0}/hd/London%2CToronto%2CDallas%2CWashington%2CSan%2CSydney/"
@@ -182,6 +185,10 @@ def download_movie(args, movie_page_url):
 
     # parse the page and get the url
     movie_url = get_movie_url(session, page)
+    movie_url_data = get_page(session, movie_url)
+    max_end = max(map(float, re.findall('&end=([0-9.]+)', movie_url_data)))
+    movie_fn = re.search('^(.*\\.mp4\\.ts)\\?start=', movie_url_data, re.MULTILINE).group(1)
+    movie_url = "%s?start=0.000&end=%.03f" % (urljoin(movie_url, movie_fn), max_end)
 
     movie_name = get_movie_name(page)
 
