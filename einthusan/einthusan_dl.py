@@ -94,14 +94,19 @@ def start_download_movie(downloader,
     """
 
     logging.debug('Start downloading movie %s from url %s', movie_name, movie_url)
+    
+    filesystemsafe_sanitized_movie_name = movie_name.replace(":", "[colon]").replace("&", 
+        "[ampersand]").replace("&", "[ampersand]").replace("?", "[question_mark]").replace("!", 
+        "[exclamation_point]").replace("%", "[percent]").replace("#", "[pound]").replace("$", 
+        "[dollar_sign]")
 
-    dest = os.path.join(path, movie_name)
+    dest = os.path.join(path, filesystemsafe_sanitized_movie_name)
 
     if not os.path.exists(dest):
         logging.debug('Destination path %s not exists. Let\'s create one.', dest)
         mkdir_p(dest)
 
-    filename = os.path.join(dest, movie_name + '.mp4')
+    filename = os.path.join(dest, filesystemsafe_sanitized_movie_name + '.mp4')
 
     if overwrite or not os.path.exists(filename):
         if os.path.exists(filename):
