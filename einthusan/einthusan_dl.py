@@ -19,7 +19,7 @@ import time
 
 import requests
 
-requests.utils.default_user_agent = lambda: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+requests.utils.default_user_agent = lambda: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
 
 
 def beautiful_soup(page):
@@ -37,7 +37,7 @@ def get_page(session, url):
     try:
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        logging.error("Error %s getting page %s", e, url)
+        logging.error('Error %s getting page %s', e, url)
         raise
 
     return r.text
@@ -57,7 +57,7 @@ def get_movie_page(session, movie_page_url):
 def decode(value):
     value_len = len(value)
     encoded_value = value[0:10] + value[value_len - 1] + value[12:value_len - 1]
-    decoded_value = base64.b64decode(encoded_value).decode("utf-8")
+    decoded_value = base64.b64decode(encoded_value).decode('utf-8')
     return json.loads(decoded_value)
 
 
@@ -83,7 +83,7 @@ def get_movie_url(session, page, movie_page_url):
 
 
 def get_movie_name(page):
-    return page.findAll("a", {"class": 'title'})[0].findAll("h3")[0].get_text()
+    return page.findAll('a', {'class': 'title'})[0].findAll('h3')[0].get_text()
 
 
 def start_download_movie(downloader,
@@ -99,13 +99,14 @@ def start_download_movie(downloader,
 
     logging.debug('Start downloading movie [%s] from url %s', movie_name, movie_url)
 
-    dest = os.path.join(path, movie_name)
+    slugified_filename = ''.join([c if c.isalnum() else '_' for c in movie_name])
+    dest = os.path.join(path, slugified_filename)
 
     if not os.path.exists(dest):
         logging.debug('Destination path %s not exists. Let\'s create one.', dest)
         mkdir_p(dest)
 
-    filename = os.path.join(dest, movie_name + '.mp4')
+    filename = os.path.join(dest, slugified_filename + '.mp4')
 
     if overwrite or not os.path.exists(filename):
         if os.path.exists(filename):
