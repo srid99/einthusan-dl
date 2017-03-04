@@ -36,31 +36,29 @@ as well as any additional parameters:
     Specify log path:          		einthusan-dl --log=C:\downloads\logs\output.log "<movie_url1>"
     Display help:                   einthusan-dl --help
 
-**Note:** If you have noticed the movie url's are enclosed with double quotes("). We need this to avoid the problems with
-uri escaped characters (like &, +, @, $ and so on).
+**Note:** Always enclose the URL with double-quotes (") to avoid issues with special characters.
 
-### How to get the movie url ?
+### How to get the movie url
 
-On clicking any movie in Einthusan site, now you must be able to copy the url from the address bar.
-Make sure the url matches with below format,
+1. Go to Einthusan site using a browser (like Chrome, Firefox...)
+2. Go to the movie page which you like to download
+3. Copy the movie URL from the browser address bar 
+4. Make sure the url matches with below format
 
-http://www.einthusan.com/movies/watch.php?tamilmoviesonline={MOVIE-NAME}&lang=tamil&id={MOVIE-ID}
-
-Note that the above sample url is based on a tamil movie. Similarly for other languages (hindi/malayalam/telugu)
-the word 'tamil' should get replaced with their respective languages.
+https://einthusan.tv/movie/watch/{MOVIE-ID}
 
 ## Disclaimer:
 
-As per the [`Terms of Service`][4] from Einthusan.com,
+As per the [`Terms of Service`][4] from Einthusan,
 
 > "You may not either directly or through the use of any device,
 software, internet site, web-based service, or other means copy, download, stream capture, reproduce, duplicate,
 archive, distribute, upload, publish, modify, translate, broadcast, perform, display, sell, transmit or retransmit
-the Content unless expressly permitted by Einthusan.com in writing."
+the Content unless expressly permitted by Einthusan in writing."
 
 So be aware of this and use the script on your own risk :)
 
-[1]: https://www.einthusan.com
+[1]: https://www.einthusan.tv
 [2]: https://pip.pypa.io/en/latest/installing.html#install-pip
 [3]: http://python-distribute.org/pip_distribute.png
-[4]: http://www.einthusan.com/terms/
+[4]: https://einthusan.tv/terms/

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-For downloading movies from Einthusan.com website.
+For downloading movies from Einthusan.com / Einthusan.tv website.
 
 Examples:
   einthusan-dl <url>
@@ -10,26 +10,21 @@ Examples:
 """
 
 import argparse
+import base64
 import errno
+import json
 import logging
 import os
-from datetime import datetime
-import re
-from urlparse import urljoin
+import time
 
 import requests
-requests.utils.default_user_agent = lambda: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.89 Safari/537.36"
-from ago import human
 
-get_movie_api_url = "http://cdn.einthusan.com/geturl/{0}/hd/London%2CToronto%2CDallas%2CWashington%2CSan%2CSydney/"
+requests.utils.default_user_agent = lambda: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
 
-try:
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
+
+def beautiful_soup(page):
     from bs4 import BeautifulSoup as BeautifulSoup_
-    BeautifulSoup = lambda page: BeautifulSoup_(page, 'html.parser')
-
-from .downloaders import get_downloader
+    return BeautifulSoup_(page, 'html.parser')
 
 
 def get_page(session, url):
@@ -37,7 +32,6 @@ def get_page(session, url):
     Download an HTML page using the requests session.
     """
 
-    session.headers.update({'Referer': 'http://www.einthusan.com'})
     r = session.get(url)
 
     try:
@@ -57,29 +51,39 @@ def get_movie_page(session, movie_page_url):
     page = get_page(session, movie_page_url)
     logging.info('Downloaded %s (%d bytes)', movie_page_url, len(page))
 
-    return page
+    return beautiful_soup(page)
 
 
-def get_movie_url(session, page):
+def decode(value):
+    value_len = len(value)
+    encoded_value = value[0:10] + value[value_len - 1] + value[12:value_len - 1]
+    decoded_value = base64.b64decode(encoded_value).decode("utf-8")
+    return json.loads(decoded_value)
+
+
+def get_movie_url(session, page, movie_page_url):
     """
     Parses a Einthusan movie page and retrieves the movie url.
     """
 
-    soup = BeautifulSoup(page)
+    page_id = page.find('html')['data-pageid']
+    ejpingables = page.find('section', {'id': 'UIVideoPlayer'})['data-ejpingables']
 
-    movie_id = soup.find('div', {'id': 'mediaplayer'})['data-movieid']
-    movie_url_api = get_movie_api_url.format(movie_id)
-    movie_url = get_page(session, movie_url_api)
+    movie_meta_url = movie_page_url.replace('movie', 'ajax/movie')
 
-    logging.info('Movie url: %s', movie_url)
+    payload = {
+        'xEvent': 'UIVideoPlayer.PingOutcome',
+        'xJson': '{\"EJOutcomes\":\"' + ejpingables + '\",\"NativeHLS\":false}',
+        'gorilla.csrf.Token': page_id
+    }
 
-    return movie_url
+    encoded_url = session.post(movie_meta_url, data=payload).json()['Data']['EJLinks']
+
+    return decode(encoded_url)['MP4Link']
 
 
 def get_movie_name(page):
-    soup = BeautifulSoup(page)
-    name = soup.findAll("a", {"class": 'movie-title'})[0].get_text()
-    return name
+    return page.findAll("a", {"class": 'title'})[0].findAll("h3")[0].get_text()
 
 
 def start_download_movie(downloader,
@@ -93,7 +97,7 @@ def start_download_movie(downloader,
     Downloads the movie from the given url.
     """
 
-    logging.debug('Start downloading movie %s from url %s', movie_name, movie_url)
+    logging.debug('Start downloading movie [%s] from url %s', movie_name, movie_url)
 
     dest = os.path.join(path, movie_name)
 
@@ -109,9 +113,10 @@ def start_download_movie(downloader,
 
         if not skip_download:
             logging.info('Downloading: %s', movie_name)
-            start = datetime.now()
+            start = time.time()
             downloader.download(movie_url, filename)
-            logging.info('Successfully downloaded the movie %s. Took %s', movie_name, human(start, past_tense='{0}'))
+            time_taken = time.time() - start
+            logging.info('Successfully downloaded the movie [%s]. Took [%s] seconds!', movie_name, int(time_taken))
         else:
             logging.info('Skipping downloading the movie %s since the option "--skip-download" is enabled.', movie_name)
     else:
@@ -139,7 +144,7 @@ def parse_args():
     Parse the arguments/options passed to the program on the command line.
     """
 
-    parser = argparse.ArgumentParser(description='Download movie from Einthusan.com.')
+    parser = argparse.ArgumentParser(description='Download movie from Einthusan.')
 
     # positional
     parser.add_argument('url', action='store', nargs='+', help='url(s) of the movie to be downloaded')
@@ -184,16 +189,11 @@ def download_movie(args, movie_page_url):
     page = get_movie_page(session, movie_page_url)
 
     # parse the page and get the url
-    movie_url = get_movie_url(session, page)
-    query_string = movie_url.split('?')[1]
-
-    movie_url_data = get_page(session, movie_url)
-    max_end = max(map(float, re.findall('&end=([0-9.]+)', movie_url_data)))
-    movie_fn = re.search('^(.*\\.mp4\\.ts)\\?start=', movie_url_data, re.MULTILINE).group(1)
-    movie_url = "%s?start=0.000&end=%.03f&%s" % (urljoin(movie_url, movie_fn), max_end, query_string)
+    movie_url = get_movie_url(session, page, movie_page_url)
 
     movie_name = get_movie_name(page)
 
+    from .downloaders import get_downloader
     downloader = get_downloader(session, args)
 
     # obtain the resources
