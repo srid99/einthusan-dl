@@ -40,10 +40,10 @@ as well as any additional parameters:
 
 ### How to get the movie url
 
-1. Go to Einthusan site using a browser (like Chrome, Firefox...)
-2. Go to the movie page which you like to download
-3. Copy the movie URL from the browser address bar 
-4. Make sure the url matches with below format
+1. Go to [Einthusan](1) site (using a browser like Chrome, Firefox...)
+2. Select/click the movie which you like to download
+3. Once you are in the movie page, copy the movie URL from the browser address bar
+4. Make sure the URL matches with below format
 
 https://einthusan.tv/movie/watch/{MOVIE-ID}
 
