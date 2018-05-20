@@ -18,6 +18,7 @@ import os
 import time
 
 import requests
+from requests.adapters import HTTPAdapter
 
 requests.utils.default_user_agent = lambda: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
 
@@ -186,6 +187,7 @@ def download_movie(args, movie_page_url):
     """
 
     session = requests.Session()
+    session.mount('https://', HTTPAdapter(max_retries=3))
 
     # get the web page of the movie
     page = get_movie_page(session, movie_page_url)
