@@ -83,7 +83,8 @@ def get_movie_url(session, page, movie_page_url):
 
 
 def get_movie_name(page):
-    return page.findAll('a', {'class': 'title'})[0].findAll('h3')[0].get_text()
+    summary_section = page.find('section', {'id': 'UIMovieSummary'})
+    return summary_section.findAll('a', {'class': 'title'})[0].findAll('h3')[0].get_text()
 
 
 def start_download_movie(downloader,
