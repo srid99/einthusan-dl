@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import time
+import re
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -69,18 +70,22 @@ def get_movie_url(session, page, movie_page_url):
 
     page_id = page.find('html')['data-pageid']
     ejpingables = page.find('section', {'id': 'UIVideoPlayer'})['data-ejpingables']
+    line = page.find('section', {'id': 'UIVideoPlayer'})['data-mp4-link']
+    ip_addr_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+    line = re.sub(ip_addr_regex, 'cdn2.einthusan.io', line)
 
-    movie_meta_url = movie_page_url.replace('movie', 'ajax/movie')
+    #movie_meta_url = movie_page_url.replace('movie', 'ajax/movie')
 
-    payload = {
-        'xEvent': 'UIVideoPlayer.PingOutcome',
-        'xJson': '{\"EJOutcomes\":\"' + ejpingables + '\",\"NativeHLS\":false}',
-        'gorilla.csrf.Token': page_id
-    }
+    #payload = {
+    #    'xEvent': 'UIVideoPlayer.PingOutcome',
+    #    'xJson': '{\"EJOutcomes\":\"' + ejpingables + '\",\"NativeHLS\":false}',
+    #    'gorilla.csrf.Token': page_id
+    #}
 
-    encoded_url = session.post(movie_meta_url, data=payload).json()['Data']['EJLinks']
+    #encoded_url = session.post(movie_meta_url, data=payload).json()['Data']['EJLinks']
 
-    return decode(encoded_url)['MP4Link']
+    #return decode(encoded_url)['MP4Link']
+    return line
 
 
 def get_movie_name(page):
