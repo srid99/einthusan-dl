@@ -1,6 +1,6 @@
 [package]
 name = "einthusan-dl"
-version = "2.0.0"
+version = "2.0.0-beta"
 edition = "2021"
 authors = ["Sridhar S <srid99@users.noreply.github.com>", "Rust Migration Team"]
 description = "High-performance native command-line downloader for Einthusan"

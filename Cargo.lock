@@ -441,7 +441,7 @@ checksum = "12a0bb14ac04a9fcf170d0bbbef949b44cc492f4452bd20c095636956f653642"
 
 [[package]]
 name = "einthusan-dl"
-version = "2.0.0"
+version = "2.0.0-beta"
 dependencies = [
  "anyhow",
  "assert_cmd",

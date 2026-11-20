@@ -80,6 +80,11 @@ einthusan-dl --help
 - Added the `--plot` option to print a movie's plot from its Einthusan page without downloading the movie.
 - Kept plot extraction off the default path to avoid affecting normal download performance.
 
+### v2.0.0-beta
+
+- Native downloads now use four concurrent HTTP range requests when the server supports byte ranges.
+- Servers that do not support ranges automatically use the existing single-stream download path.
+
 ## Disclaimer
 
 As per the [`Terms of Service`][4] from Einthusan:
