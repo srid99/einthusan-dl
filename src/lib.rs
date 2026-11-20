@@ -21,6 +21,16 @@ pub async fn run_app(args: Args) -> Result<(), AppError> {
     logging::init_logging(args.logfile.as_deref(), args.debug)?;
 
     let client = EinthusanClient::new()?;
+
+    if args.plot {
+        for movie_page_url in &args.urls {
+            if let Err(e) = print_movie_plot(&client, movie_page_url).await {
+                error!("Failed to fetch plot for {}: {}", movie_page_url, e);
+            }
+        }
+        return Ok(());
+    }
+
     let downloader = DownloaderKind::from_args(&args)?;
 
     for movie_page_url in &args.urls {
@@ -39,21 +49,7 @@ async fn process_single_movie(
     movie_page_url: &str,
 ) -> Result<(), AppError> {
     info!("Downloading movie from page : {}", movie_page_url);
-    let (meta, links) = if args.plot {
-        client
-            .resolve_movie_info_with_plot(movie_page_url, true)
-            .await?
-    } else {
-        client.resolve_movie_info(movie_page_url).await?
-    };
-
-    if args.plot {
-        if let Some(plot) = &meta.plot {
-            println!("{plot}");
-        } else {
-            info!("No plot was found for {}", meta.movie_name);
-        }
-    }
+    let (meta, links) = client.resolve_movie_info(movie_page_url).await?;
 
     let movie_name = meta.movie_name;
     let movie_url = links.mp4_link;
@@ -113,6 +109,16 @@ async fn process_single_movie(
         }
     } else {
         info!("{} already downloaded", filename_str);
+    }
+
+    Ok(())
+}
+
+async fn print_movie_plot(client: &EinthusanClient, movie_page_url: &str) -> Result<(), AppError> {
+    if let Some(plot) = client.fetch_movie_plot(movie_page_url).await? {
+        println!("{plot}");
+    } else {
+        info!("No plot was found for {}", movie_page_url);
     }
 
     Ok(())

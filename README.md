@@ -52,7 +52,7 @@ einthusan-dl "<movie_url1>" --curl
 # Overwrite existing files
 einthusan-dl "<movie_url1>" -o
 
-# Print the movie plot
+# Print the movie plot without downloading the movie
 einthusan-dl "<movie_url1>" --plot
 
 # Specify log file
@@ -77,7 +77,7 @@ einthusan-dl --help
 
 ### v2.0.0
 
-- Added the `--plot` option to print a movie's plot from its Einthusan page.
+- Added the `--plot` option to print a movie's plot from its Einthusan page without downloading the movie.
 - Kept plot extraction off the default path to avoid affecting normal download performance.
 
 ## Disclaimer

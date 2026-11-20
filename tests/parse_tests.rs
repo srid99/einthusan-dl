@@ -8,6 +8,9 @@ fn test_parse_normal_watch_page() {
     let html = std::fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("Failed to read fixture {path}: {e}"));
 
+    let default_meta = parse_movie_page(&html).expect("Failed to parse normal watch page");
+    assert!(default_meta.plot.is_none());
+
     let meta = parse_movie_page_with_plot(&html).expect("Failed to parse normal watch page");
     assert!(!meta.page_id.is_empty());
     assert!(!meta.ejpingables.is_empty());

@@ -58,25 +58,17 @@ impl EinthusanClient {
         Ok(body)
     }
 
+    pub async fn fetch_movie_plot(&self, movie_page_url: &str) -> Result<Option<String>, AppError> {
+        let html = self.fetch_page(movie_page_url).await?;
+        Ok(parse_movie_page_with_plot(&html)?.plot)
+    }
+
     pub async fn resolve_movie_info(
         &self,
         movie_page_url: &str,
     ) -> Result<(MoviePageMeta, DecodedLinks), AppError> {
-        self.resolve_movie_info_with_plot(movie_page_url, false)
-            .await
-    }
-
-    pub async fn resolve_movie_info_with_plot(
-        &self,
-        movie_page_url: &str,
-        include_plot: bool,
-    ) -> Result<(MoviePageMeta, DecodedLinks), AppError> {
         let html = self.fetch_page(movie_page_url).await?;
-        let meta = if include_plot {
-            parse_movie_page_with_plot(&html)?
-        } else {
-            parse_movie_page(&html)?
-        };
+        let meta = parse_movie_page(&html)?;
 
         let ajax_url = movie_page_url.replace("movie", "ajax/movie");
         let x_json = serde_json::json!({
