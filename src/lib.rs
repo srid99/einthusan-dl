@@ -39,7 +39,21 @@ async fn process_single_movie(
     movie_page_url: &str,
 ) -> Result<(), AppError> {
     info!("Downloading movie from page : {}", movie_page_url);
-    let (meta, links) = client.resolve_movie_info(movie_page_url).await?;
+    let (meta, links) = if args.plot {
+        client
+            .resolve_movie_info_with_plot(movie_page_url, true)
+            .await?
+    } else {
+        client.resolve_movie_info(movie_page_url).await?
+    };
+
+    if args.plot {
+        if let Some(plot) = &meta.plot {
+            println!("{plot}");
+        } else {
+            info!("No plot was found for {}", meta.movie_name);
+        }
+    }
 
     let movie_name = meta.movie_name;
     let movie_url = links.mp4_link;

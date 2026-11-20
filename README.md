@@ -10,6 +10,7 @@ A fast, standalone movie downloader for [Einthusan][1], rewritten in **Rust** ðŸ
 - **Zero Runtime Dependencies**: Pure static Rust binary using modern async I/O.
 - **Multiple Download Engines**: Built-in native chunked downloader with retry backoff and progress bar, plus optional external `--wget` and `--curl` support.
 - **Batch Processing**: Download multiple movie URLs sequentially in one run.
+- **Movie Plot Output**: Use `--plot` to print the plot from the movie page.
 - **Resilient**: Graceful handling of network disconnects and clean partial-file removal on `Ctrl-C`.
 
 ## Installation & Build
@@ -51,6 +52,9 @@ einthusan-dl "<movie_url1>" --curl
 # Overwrite existing files
 einthusan-dl "<movie_url1>" -o
 
+# Print the movie plot
+einthusan-dl "<movie_url1>" --plot
+
 # Specify log file
 einthusan-dl --log=/path/to/output.log "<movie_url1>"
 
@@ -68,6 +72,13 @@ einthusan-dl --help
    ```
    https://einthusan.tv/movie/watch/{MOVIE-ID}/
    ```
+
+## Release Notes
+
+### v2.0.0
+
+- Added the `--plot` option to print a movie's plot from its Einthusan page.
+- Kept plot extraction off the default path to avoid affecting normal download performance.
 
 ## Disclaimer
 

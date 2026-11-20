@@ -9,6 +9,7 @@ fn test_cli_minimal_args() {
     assert_eq!(args.urls, vec!["https://einthusan.tv/movie/watch/2ZEY/"]);
     assert!(!args.overwrite);
     assert!(!args.skip_download);
+    assert!(!args.plot);
     assert_eq!(args.path, "");
     assert!(args.wget.is_none());
     assert!(args.curl.is_none());
@@ -30,11 +31,13 @@ fn test_cli_all_flags() {
         "/usr/local/bin/wget",
         "--output-movie-name",
         "/data/einthusan-dl/test.txt",
+        "--plot",
     ])
     .expect("Failed to parse all flags");
 
     assert!(args.overwrite);
     assert!(args.skip_download);
+    assert!(args.plot);
     assert_eq!(args.path, "/tmp/movies");
     assert_eq!(args.logfile.as_deref(), Some("/tmp/einthusan.log"));
     assert_eq!(args.wget.as_deref(), Some("/usr/local/bin/wget"));

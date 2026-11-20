@@ -4,7 +4,9 @@ use std::time::Duration;
 use tracing::{debug, info};
 
 use crate::error::AppError;
-use crate::scraper::{decode_links, parse_movie_page, DecodedLinks, MoviePageMeta};
+use crate::scraper::{
+    decode_links, parse_movie_page, parse_movie_page_with_plot, DecodedLinks, MoviePageMeta,
+};
 
 const DEFAULT_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -60,8 +62,21 @@ impl EinthusanClient {
         &self,
         movie_page_url: &str,
     ) -> Result<(MoviePageMeta, DecodedLinks), AppError> {
+        self.resolve_movie_info_with_plot(movie_page_url, false)
+            .await
+    }
+
+    pub async fn resolve_movie_info_with_plot(
+        &self,
+        movie_page_url: &str,
+        include_plot: bool,
+    ) -> Result<(MoviePageMeta, DecodedLinks), AppError> {
         let html = self.fetch_page(movie_page_url).await?;
-        let meta = parse_movie_page(&html)?;
+        let meta = if include_plot {
+            parse_movie_page_with_plot(&html)?
+        } else {
+            parse_movie_page(&html)?
+        };
 
         let ajax_url = movie_page_url.replace("movie", "ajax/movie");
         let x_json = serde_json::json!({

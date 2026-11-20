@@ -35,6 +35,10 @@ pub struct Args {
     #[arg(long = "output-movie-name")]
     pub output_movie_name: Option<String>,
 
+    /// Print the movie plot
+    #[arg(long = "plot", default_value_t = false)]
+    pub plot: bool,
+
     /// Print lots of debug information
     #[arg(long = "debug", default_value_t = false)]
     pub debug: bool,

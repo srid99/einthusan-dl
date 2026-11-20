@@ -23,6 +23,7 @@ pub struct MoviePageMeta {
     pub page_id: String,
     pub ejpingables: String,
     pub movie_name: String,
+    pub plot: Option<String>,
 }
 
 pub fn decode_links(value: &str) -> Result<DecodedLinks, AppError> {
@@ -59,7 +60,18 @@ pub fn decode_links(value: &str) -> Result<DecodedLinks, AppError> {
 
 pub fn parse_movie_page(html_str: &str) -> Result<MoviePageMeta, AppError> {
     let document = Html::parse_document(html_str);
+    parse_movie_page_document(document, false)
+}
 
+pub fn parse_movie_page_with_plot(html_str: &str) -> Result<MoviePageMeta, AppError> {
+    let document = Html::parse_document(html_str);
+    parse_movie_page_document(document, true)
+}
+
+fn parse_movie_page_document(
+    document: Html,
+    include_plot: bool,
+) -> Result<MoviePageMeta, AppError> {
     let html_selector = Selector::parse("html")
         .map_err(|e| AppError::Parse(format!("Invalid html selector: {e:?}")))?;
     let html_elem = document
@@ -100,10 +112,23 @@ pub fn parse_movie_page(html_str: &str) -> Result<MoviePageMeta, AppError> {
         .trim()
         .to_string();
 
+    let plot = if include_plot {
+        let plot_selector = Selector::parse("section#UIMovieSummary p.synopsis")
+            .map_err(|e| AppError::Parse(format!("Invalid plot selector: {e:?}")))?;
+        document
+            .select(&plot_selector)
+            .next()
+            .map(|elem| elem.text().collect::<Vec<_>>().join("").trim().to_string())
+            .filter(|plot| !plot.is_empty())
+    } else {
+        None
+    };
+
     Ok(MoviePageMeta {
         page_id,
         ejpingables,
         movie_name,
+        plot,
     })
 }
 
