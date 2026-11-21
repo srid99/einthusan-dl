@@ -57,3 +57,13 @@ fn test_cli_default_wget_and_curl_bins() {
         .expect("Failed to parse --curl with default");
     assert_eq!(args_curl.curl.as_deref(), Some("curl"));
 }
+
+#[test]
+fn test_cli_version_includes_release_and_parallel_default() {
+    let error = Args::try_parse_from(["einthusan-dl", "--version"])
+        .expect_err("--version should exit without requiring a movie URL");
+    let output = error.to_string();
+
+    assert!(output.contains("einthusan-dl 2.0.0-beta"));
+    assert!(output.contains("default parallel downloads: 4"));
+}

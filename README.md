@@ -60,6 +60,9 @@ einthusan-dl --log=/path/to/output.log "<movie_url1>"
 
 # Display help and options
 einthusan-dl --help
+
+# Print the release and native parallel-download default
+einthusan-dl --version
 ```
 
 > **Note:** Always enclose the URL in double quotes (`"`) to prevent shell interpretation of query parameters (like `?lang=tamil`).
@@ -84,6 +87,7 @@ einthusan-dl --help
 
 - Native downloads now use four concurrent HTTP range requests when the server supports byte ranges.
 - Servers that do not support ranges automatically use the existing single-stream download path.
+- `--version` reports the release and the default four-way native parallelism.
 
 ## Disclaimer
 
