@@ -88,6 +88,7 @@ einthusan-dl --version
 - Native downloads now use four concurrent HTTP range requests when the server supports byte ranges.
 - Servers that do not support ranges automatically use the existing single-stream download path.
 - `--version` reports the release and the default four-way native parallelism.
+- Range downloads show progress as four segments in the native progress bar.
 
 ## Disclaimer
 

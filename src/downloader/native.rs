@@ -156,12 +156,15 @@ impl NativeDownloader {
         file.set_len(total)?;
         drop(file);
 
-        let progress = Arc::new(Mutex::new(DownloadProgress::new(Some(total))));
+        let fragment_totals = ranges.iter().map(|(start, end)| end - start + 1).collect();
+        let progress = Arc::new(Mutex::new(DownloadProgress::new_fragmented(
+            fragment_totals,
+        )));
         progress.lock().expect("progress mutex poisoned").start();
 
         // shortcut: fixed four connections; add a user setting if server throttling requires tuning
-        let requests = ranges.into_iter().map(|(start, end)| {
-            self.download_fragment(url, filename, start, end, Arc::clone(&progress))
+        let requests = ranges.into_iter().enumerate().map(|(index, (start, end))| {
+            self.download_fragment(url, filename, index, start, end, Arc::clone(&progress))
         });
         let results = join_all(requests).await;
 
@@ -178,6 +181,7 @@ impl NativeDownloader {
         &self,
         url: &str,
         filename: &str,
+        index: usize,
         start: u64,
         end: u64,
         progress: Arc<Mutex<DownloadProgress>>,
@@ -223,7 +227,10 @@ impl NativeDownloader {
                             }
                             file.write_all(&chunk)?;
                             received += chunk_len;
-                            progress.lock().expect("progress mutex poisoned").read(chunk_len);
+                            progress
+                                .lock()
+                                .expect("progress mutex poisoned")
+                                .read_fragment(index, chunk_len);
                         }
                         Some(Err(e)) => return Err(AppError::Http(e)),
                         None => {
