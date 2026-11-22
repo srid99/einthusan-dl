@@ -4,7 +4,7 @@ use clap::Parser;
 #[command(
     name = "einthusan-dl",
     about = "Download movie from Einthusan.",
-    version = concat!(env!("CARGO_PKG_VERSION"), " (default parallel downloads: 1)")
+    version = concat!(env!("CARGO_PKG_VERSION"), " (default parallel downloads: 4)")
 )]
 pub struct Args {
     /// URL(s) of the movie to be downloaded

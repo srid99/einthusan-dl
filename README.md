@@ -62,7 +62,7 @@ einthusan-dl --log=/path/to/output.log "<movie_url1>"
 # Display help and options
 einthusan-dl --help
 
-# Print the release and native download default
+# Print the release and native parallel-download default
 einthusan-dl --version
 ```
 
@@ -79,10 +79,12 @@ einthusan-dl --version
 
 ## Release Notes
 
-### v1.0.0
+### v2.0.1
 
 - Added `--plot` to print a movie's plot without downloading it.
-- Added `--version` to print the release and the default single native download.
+- Added `--version` to print the release and the default four-way native parallelism.
+- Native downloads use four concurrent byte ranges when supported, with per-fragment retries.
+- Servers without range support use the single-stream fallback.
 
 ## Disclaimer
 
