@@ -21,8 +21,6 @@ pub fn format_bytes(bytes: Option<u64>) -> String {
 pub struct DownloadProgress {
     total: Option<u64>,
     current: u64,
-    fragment_current: Vec<u64>,
-    fragment_totals: Vec<u64>,
     start: Option<Instant>,
     now: Option<Instant>,
     finished: bool,
@@ -38,21 +36,6 @@ impl DownloadProgress {
         Self {
             total,
             current: 0,
-            fragment_current: Vec::new(),
-            fragment_totals: Vec::new(),
-            start: None,
-            now: None,
-            finished: false,
-        }
-    }
-
-    pub fn new_fragmented(fragment_totals: Vec<u64>) -> Self {
-        let total = fragment_totals.iter().sum();
-        Self {
-            total: Some(total),
-            current: 0,
-            fragment_current: vec![0; fragment_totals.len()],
-            fragment_totals,
             start: None,
             now: None,
             finished: false,
@@ -67,18 +50,6 @@ impl DownloadProgress {
 
     pub fn read(&mut self, bytes: u64) {
         self.current += bytes;
-        self.report_if_due();
-    }
-
-    pub fn read_fragment(&mut self, fragment: usize, bytes: u64) {
-        self.current += bytes;
-        if let Some(current) = self.fragment_current.get_mut(fragment) {
-            *current += bytes;
-        }
-        self.report_if_due();
-    }
-
-    fn report_if_due(&mut self) {
         let now = Instant::now();
         let should_report = match self.now {
             Some(last) => now.duration_since(last).as_millis() >= 100,
@@ -104,25 +75,6 @@ impl DownloadProgress {
         };
 
         let percentage = ((self.current as f64 / total as f64) * 100.0) as u64;
-        if !self.fragment_totals.is_empty() {
-            let segments = self
-                .fragment_totals
-                .iter()
-                .zip(&self.fragment_current)
-                .map(|(fragment_total, fragment_current)| {
-                    let filled = if *fragment_total == 0 {
-                        0
-                    } else {
-                        ((*fragment_current as f64 / *fragment_total as f64) * 10.0)
-                            .round()
-                            .min(10.0) as usize
-                    };
-                    format!("[{}{}]", "#".repeat(filled), " ".repeat(10 - filled))
-                })
-                .collect::<String>();
-            return format!("{segments} {percentage}%");
-        }
-
         let done = (percentage / 2) as usize;
         let hashes = "#".repeat(done);
         format!("[{: <50}] {}%", hashes, percentage)
@@ -158,19 +110,5 @@ impl DownloadProgress {
             let _ = write!(stdout, "{}", report);
         }
         let _ = stdout.flush();
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::DownloadProgress;
-
-    #[test]
-    fn fragmented_progress_tracks_each_segment() {
-        let mut progress = DownloadProgress::new_fragmented(vec![100, 100]);
-        progress.read_fragment(0, 50);
-        progress.read_fragment(1, 25);
-
-        assert_eq!(progress.calc_percent(), "[#####     ][###       ] 37%");
     }
 }

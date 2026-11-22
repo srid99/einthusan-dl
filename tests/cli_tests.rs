@@ -64,6 +64,6 @@ fn test_cli_version_includes_release_and_parallel_default() {
         .expect_err("--version should exit without requiring a movie URL");
     let output = error.to_string();
 
-    assert!(output.contains("einthusan-dl 2.0.0-beta"));
-    assert!(output.contains("default parallel downloads: 4"));
+    assert!(output.contains("einthusan-dl 1.0.0"));
+    assert!(output.contains("default parallel downloads: 1"));
 }

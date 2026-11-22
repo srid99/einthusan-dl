@@ -8,9 +8,10 @@ A fast, standalone movie downloader for [Einthusan][1], rewritten in **Rust** ðŸ
 
 - **Fast & Lightweight**: Single ~4.4MB native binary, instant startup (~270ms vs >2.4s previously).
 - **Zero Runtime Dependencies**: Pure static Rust binary using modern async I/O.
-- **Multiple Download Engines**: Built-in native chunked downloader with retry backoff and progress bar, plus optional external `--wget` and `--curl` support.
+- **Multiple Download Engines**: Built-in native downloader with retry backoff and progress bar, plus optional external `--wget` and `--curl` support.
 - **Batch Processing**: Download multiple movie URLs sequentially in one run.
 - **Movie Plot Output**: Use `--plot` to print the plot from the movie page.
+- **Version Information**: Use `--version` to print the release and native download default.
 - **Resilient**: Graceful handling of network disconnects and clean partial-file removal on `Ctrl-C`.
 
 ## Installation & Build
@@ -61,7 +62,7 @@ einthusan-dl --log=/path/to/output.log "<movie_url1>"
 # Display help and options
 einthusan-dl --help
 
-# Print the release and native parallel-download default
+# Print the release and native download default
 einthusan-dl --version
 ```
 
@@ -78,17 +79,10 @@ einthusan-dl --version
 
 ## Release Notes
 
-### v2.0.0
+### v1.0.0
 
-- Added the `--plot` option to print a movie's plot from its Einthusan page without downloading the movie.
-- Kept plot extraction off the default path to avoid affecting normal download performance.
-
-### v2.0.0-beta
-
-- Native downloads now use four concurrent HTTP range requests when the server supports byte ranges.
-- Servers that do not support ranges automatically use the existing single-stream download path.
-- `--version` reports the release and the default four-way native parallelism.
-- Range downloads show progress as four segments in the native progress bar.
+- Added `--plot` to print a movie's plot without downloading it.
+- Added `--version` to print the release and the default single native download.
 
 ## Disclaimer
 
