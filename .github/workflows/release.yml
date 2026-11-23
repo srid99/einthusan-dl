@@ -28,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: taiki-e/create-gh-release-action@v1
+        with:
+          changelog: CHANGELOG.md
 
   upload-assets:
     needs: create-release
