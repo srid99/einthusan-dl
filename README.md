@@ -11,7 +11,8 @@ A fast, standalone movie downloader for [Einthusan][1], rewritten in **Rust** ðŸ
 - **Multiple Download Engines**: Built-in native downloader with retry backoff and progress bar, plus optional external `--wget` and `--curl` support.
 - **Batch Processing**: Download multiple movie URLs sequentially in one run.
 - **Movie Plot Output**: Use `--plot` to print the plot from the movie page.
-- **Version Information**: Use `--version` to print the release and native download default.
+- **Tunable Parallelism**: Use `--fragments <N>` to set the number of concurrent download fragments (default: 4).
+- **Version Information**: Use `--version` to print the release.
 - **Resilient**: Graceful handling of network disconnects and clean partial-file removal on `Ctrl-C`.
 
 ## Installation & Build
@@ -56,13 +57,16 @@ einthusan-dl "<movie_url1>" -o
 # Print the movie plot without downloading the movie
 einthusan-dl "<movie_url1>" --plot
 
+# Tune download parallelism (default: 4 fragments)
+einthusan-dl "<movie_url1>" --fragments 8
+
 # Specify log file
 einthusan-dl --log=/path/to/output.log "<movie_url1>"
 
 # Display help and options
 einthusan-dl --help
 
-# Print the release and native parallel-download default
+# Print the release version
 einthusan-dl --version
 ```
 
@@ -78,6 +82,11 @@ einthusan-dl --version
    ```
 
 ## Release Notes
+
+### v2.0.2
+
+- `--plot` now prints only the plot (no page-fetch log line).
+- Added `--fragments <N>` to tune the number of parallel download fragments (default: 4).
 
 ### v2.0.1
 

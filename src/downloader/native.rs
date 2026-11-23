@@ -11,21 +11,21 @@ use crate::downloader::progress::DownloadProgress;
 use crate::error::AppError;
 
 const MAX_ATTEMPTS: u32 = 5;
-const FRAGMENT_COUNT: usize = 4;
 const FRAGMENT_ATTEMPTS: u32 = 3;
 
 pub struct NativeDownloader {
     client: reqwest::Client,
+    fragments: usize,
 }
 
 impl NativeDownloader {
-    pub fn new() -> Result<Self, AppError> {
+    pub fn new(fragments: usize) -> Result<Self, AppError> {
         let client = reqwest::Client::builder()
             .connect_timeout(Duration::from_secs(15))
             .read_timeout(Duration::from_secs(30))
             .build()?;
 
-        Ok(Self { client })
+        Ok(Self { client, fragments })
     }
 
     pub async fn download(&self, url: &str, filename: &str) -> Result<bool, AppError> {
@@ -152,7 +152,7 @@ impl NativeDownloader {
         filename: &str,
         total: u64,
     ) -> Result<(), AppError> {
-        let ranges = split_ranges(total);
+        let ranges = split_ranges(total, self.fragments);
         let file = File::create(Path::new(filename))?;
         file.set_len(total)?;
         drop(file);
@@ -163,7 +163,6 @@ impl NativeDownloader {
         )));
         progress.lock().expect("progress mutex poisoned").start();
 
-        // shortcut: fixed four connections; add a user setting if server throttling requires tuning
         let requests = ranges.into_iter().enumerate().map(|(index, (start, end))| {
             self.download_fragment(url, filename, index, start, end, Arc::clone(&progress))
         });
@@ -283,15 +282,15 @@ impl NativeDownloader {
     }
 }
 
-fn split_ranges(total: u64) -> Vec<(u64, u64)> {
+fn split_ranges(total: u64, fragments: usize) -> Vec<(u64, u64)> {
     if total == 0 {
         return Vec::new();
     }
 
-    let count = if total < FRAGMENT_COUNT as u64 {
+    let count = if total < fragments as u64 {
         total as usize
     } else {
-        FRAGMENT_COUNT
+        fragments
     };
     let base_size = total / count as u64;
     let remainder = total % count as u64;
@@ -319,7 +318,7 @@ mod tests {
 
     #[test]
     fn split_ranges_cover_file_without_gaps() {
-        let ranges = split_ranges(10);
+        let ranges = split_ranges(10, 4);
 
         assert_eq!(ranges, vec![(0, 2), (3, 5), (6, 7), (8, 9)]);
         assert_eq!(ranges.first().unwrap().0, 0);
@@ -329,7 +328,26 @@ mod tests {
 
     #[test]
     fn split_ranges_use_one_fragment_for_tiny_files() {
-        assert_eq!(split_ranges(2), vec![(0, 0), (1, 1)]);
+        assert_eq!(split_ranges(2, 4), vec![(0, 0), (1, 1)]);
+    }
+
+    #[test]
+    fn split_ranges_clamp_fragments_to_file_size() {
+        assert_eq!(
+            split_ranges(10, 100),
+            vec![
+                (0, 0),
+                (1, 1),
+                (2, 2),
+                (3, 3),
+                (4, 4),
+                (5, 5),
+                (6, 6),
+                (7, 7),
+                (8, 8),
+                (9, 9)
+            ]
+        );
     }
 
     #[test]

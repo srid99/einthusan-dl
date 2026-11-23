@@ -28,7 +28,7 @@ impl DownloaderKind {
             )));
         }
 
-        Ok(Self::Native(NativeDownloader::new()?))
+        Ok(Self::Native(NativeDownloader::new(args.fragments)?))
     }
 
     pub async fn download(&self, url: &str, filename: &str) -> Result<bool, AppError> {

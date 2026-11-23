@@ -10,6 +10,7 @@ fn test_cli_minimal_args() {
     assert!(!args.overwrite);
     assert!(!args.skip_download);
     assert!(!args.plot);
+    assert_eq!(args.fragments, 4);
     assert_eq!(args.path, "");
     assert!(args.wget.is_none());
     assert!(args.curl.is_none());
@@ -32,12 +33,15 @@ fn test_cli_all_flags() {
         "--output-movie-name",
         "/data/einthusan-dl/test.txt",
         "--plot",
+        "--fragments",
+        "8",
     ])
     .expect("Failed to parse all flags");
 
     assert!(args.overwrite);
     assert!(args.skip_download);
     assert!(args.plot);
+    assert_eq!(args.fragments, 8);
     assert_eq!(args.path, "/tmp/movies");
     assert_eq!(args.logfile.as_deref(), Some("/tmp/einthusan.log"));
     assert_eq!(args.wget.as_deref(), Some("/usr/local/bin/wget"));
@@ -59,11 +63,16 @@ fn test_cli_default_wget_and_curl_bins() {
 }
 
 #[test]
-fn test_cli_version_includes_release_and_parallel_default() {
+fn test_cli_version_includes_release() {
     let error = Args::try_parse_from(["einthusan-dl", "--version"])
         .expect_err("--version should exit without requiring a movie URL");
     let output = error.to_string();
 
-    assert!(output.contains("einthusan-dl 2.0.1"));
-    assert!(output.contains("default parallel downloads: 4"));
+    assert!(output.contains("einthusan-dl 2.0.2"));
+}
+
+#[test]
+fn test_cli_fragments_must_be_at_least_one() {
+    Args::try_parse_from(["einthusan-dl", "https://test.com", "--fragments", "0"])
+        .expect_err("--fragments 0 should be rejected");
 }

@@ -4,7 +4,7 @@ use clap::Parser;
 #[command(
     name = "einthusan-dl",
     about = "Download movie from Einthusan.",
-    version = concat!(env!("CARGO_PKG_VERSION"), " (default parallel downloads: 4)")
+    version = env!("CARGO_PKG_VERSION")
 )]
 pub struct Args {
     /// URL(s) of the movie to be downloaded
@@ -42,6 +42,14 @@ pub struct Args {
     /// Print the movie plot
     #[arg(long = "plot", default_value_t = false)]
     pub plot: bool,
+
+    /// Number of parallel download fragments (default: 4)
+    #[arg(
+        long = "fragments",
+        default_value_t = 4,
+        value_parser = clap::builder::RangedU64ValueParser::<usize>::new().range(1..)
+    )]
+    pub fragments: usize,
 
     /// Print lots of debug information
     #[arg(long = "debug", default_value_t = false)]

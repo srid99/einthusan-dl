@@ -42,7 +42,7 @@ impl EinthusanClient {
         Ok(Self { client })
     }
 
-    pub async fn fetch_page(&self, url: &str) -> Result<String, AppError> {
+    pub async fn fetch_page(&self, url: &str, quiet: bool) -> Result<String, AppError> {
         debug!("Fetching page from URL: {}", url);
         let resp = self.client.get(url).send().await?;
         let status = resp.status();
@@ -54,12 +54,14 @@ impl EinthusanClient {
         }
 
         let body = resp.text().await?;
-        info!("Downloaded {} ({} bytes)", url, body.len());
+        if !quiet {
+            info!("Downloaded {} ({} bytes)", url, body.len());
+        }
         Ok(body)
     }
 
     pub async fn fetch_movie_plot(&self, movie_page_url: &str) -> Result<Option<String>, AppError> {
-        let html = self.fetch_page(movie_page_url).await?;
+        let html = self.fetch_page(movie_page_url, true).await?;
         Ok(parse_movie_page_with_plot(&html)?.plot)
     }
 
@@ -67,7 +69,7 @@ impl EinthusanClient {
         &self,
         movie_page_url: &str,
     ) -> Result<(MoviePageMeta, DecodedLinks), AppError> {
-        let html = self.fetch_page(movie_page_url).await?;
+        let html = self.fetch_page(movie_page_url, false).await?;
         let meta = parse_movie_page(&html)?;
 
         let ajax_url = movie_page_url.replace("movie", "ajax/movie");
