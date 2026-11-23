@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - `--plot` prints only the plot (page-fetch log line suppressed).
 - Add `--fragments <N>` to set the number of parallel download fragments (default: 4).
+- Security: update `cookie` to 0.18.3 (fixes RUSTSEC-2026-0594).
 
 ## [2.0.1] - 2026-11-22
 
