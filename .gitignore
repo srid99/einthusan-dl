@@ -1,6 +1,8 @@
-*.py[co]
-*~
-.DS_Store
-_cache/
+# Build artifacts
+target/
 
+# Tooling and IDEs
+.opencode/
 .idea/
+.DS_Store
+*~

@@ -1,0 +1,33 @@
+[package]
+name = "einthusan-dl"
+version = "2.0.2"
+edition = "2021"
+authors = ["Sridhar S <srid99@users.noreply.github.com>", "Rust Migration Team"]
+description = "High-performance native command-line downloader for Einthusan"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "io-util", "process", "signal", "fs", "time"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "json", "cookies", "gzip", "brotli", "deflate"] }
+scraper = "0.19"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.22"
+futures-util = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "ansi"] }
+thiserror = "1.0"
+anyhow = "1.0"
+
+[dev-dependencies]
+tempfile = "3.10"
+assert_cmd = "2.0"
+predicates = "3.1"
+
+
+[profile.release]
+lto = "thin"
+opt-level = 3
+panic = "abort"
+strip = true

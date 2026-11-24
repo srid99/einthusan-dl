@@ -1,64 +1,110 @@
 # Einthusan Downloader
 
-[Einthusan][1] is a premium south asian video publisher providing
-movies and music videos on-demand.
+A fast, standalone movie downloader for [Einthusan][1], rewritten in **Rust** 🦀 — single binary, zero external runtime dependencies, no Python required.
 
-This script [einthusan-dl] comes handy if you want to download movies from Einthusan site.
+[Einthusan][1] is a video publisher providing movies and music videos on-demand. `einthusan-dl` allows downloading movies from Einthusan site directly from your command line.
 
+## Features
 
-## Instructions
+- **Fast & Lightweight**: Single ~4.4MB native binary, instant startup (~270ms vs >2.4s previously).
+- **Zero Runtime Dependencies**: Pure static Rust binary using modern async I/O.
+- **Multiple Download Engines**: Built-in native downloader with retry backoff and progress bar, plus optional external `--wget` and `--curl` support.
+- **Batch Processing**: Download multiple movie URLs sequentially in one run.
+- **Movie Plot Output**: Use `--plot` to print the plot from the movie page.
+- **Tunable Parallelism**: Use `--fragments <N>` to set the number of concurrent download fragments (default: 4).
+- **Version Information**: Use `--version` to print the release.
+- **Resilient**: Graceful handling of network disconnects and clean partial-file removal on `Ctrl-C`.
 
-`einthusan-dl` requires Python 2 (2.6 or newer) or Python 3 (3.2 or newer). On Windows
-ensure that Python executable location is added to the PATH environment variable.
+## Installation & Build
 
-### Install any missing dependencies.
+Requires a standard Rust toolchain (Rust 1.75+):
 
-Make sure you have installed and/or updated all of your dependencies 
-according to the `requirements.txt` file.
+```bash
+# Clone the repository
+git clone https://github.com/sunilsankar/einthusan-dl.git
+cd einthusan-dl
 
-You can use [`pip`][2] to install the dependencies. Follow the methods described in the link to install pip.
+# Build release executable
+cargo build --release
 
-Once you have pip installed you can run the below command to install the dependencies,
+# The compiled binary will be at:
+# target/release/einthusan-dl (Linux/macOS)
+# target/release/einthusan-dl.exe (Windows)
 
+# Optionally install to your cargo bin path (~/.cargo/bin)
+cargo install --path .
 ```
-pip install -r requirements.txt
+
+## Usage
+
+```bash
+# General usage
+einthusan-dl "<movie_url1>"
+
+# Multiple movies in batch
+einthusan-dl "<movie_url1>" "<movie_url2>" "<movie_url3>"
+
+# Specify download directory
+einthusan-dl --path=/path/to/downloads "<movie_url1>"
+
+# Specify external downloader (wget or curl)
+einthusan-dl "<movie_url1>" --wget
+einthusan-dl "<movie_url1>" --curl
+
+# Overwrite existing files
+einthusan-dl "<movie_url1>" -o
+
+# Print the movie plot without downloading the movie
+einthusan-dl "<movie_url1>" --plot
+
+# Tune download parallelism (default: 4 fragments)
+einthusan-dl "<movie_url1>" --fragments 8
+
+# Specify log file
+einthusan-dl --log=/path/to/output.log "<movie_url1>"
+
+# Display help and options
+einthusan-dl --help
+
+# Print the release version
+einthusan-dl --version
 ```
 
-### Running the script
+> **Note:** Always enclose the URL in double quotes (`"`) to prevent shell interpretation of query parameters (like `?lang=tamil`).
 
-Run the script to download the videos by providing the movie url(s),
-as well as any additional parameters:
+### Finding Movie URLs
 
-    General:                        einthusan-dl "<movie_url1>"
-    Multiple movies:                einthusan-dl "<movie_url1>" "<movie_url2>" "<movie_url3>"
-    Specify external downloader:    einthusan-dl "<movie_url1>" --wget
-    Specify download path:          einthusan-dl --path=C:\downloads\movies "<movie_url1>"
-    Specify log path:          		einthusan-dl --log=C:\downloads\logs\output.log "<movie_url1>"
-    Display help:                   einthusan-dl --help
+1. Open [Einthusan](https://einthusan.tv) in your browser.
+2. Navigate to the movie you wish to download.
+3. Copy the URL from the browser address bar. It should follow this format:
+   ```
+   https://einthusan.tv/movie/watch/{MOVIE-ID}/
+   ```
 
-**Note:** Always enclose the URL with double-quotes (") to avoid issues with special characters.
+## Release Notes
 
-### How to get the movie url
+### v2.0.2
 
-1. Go to [Einthusan](1) site (using a browser like Chrome, Firefox...)
-2. Select/click the movie which you like to download
-3. Once you are in the movie page, copy the movie URL from the browser address bar
-4. Make sure the URL matches with below format
+- `--plot` now prints only the plot (no page-fetch log line).
+- Added `--fragments <N>` to tune the number of parallel download fragments (default: 4).
 
-https://einthusan.tv/movie/watch/{MOVIE-ID}
+### v2.0.1
 
-## Disclaimer:
+- Added `--plot` to print a movie's plot without downloading it.
+- Added `--version` to print the release and the default four-way native parallelism.
+- Native downloads use four concurrent byte ranges when supported, with per-fragment retries.
+- Servers without range support use the single-stream fallback.
 
-As per the [`Terms of Service`][4] from Einthusan,
+## Disclaimer
+
+As per the [`Terms of Service`][4] from Einthusan:
 
 > "You may not either directly or through the use of any device,
 software, internet site, web-based service, or other means copy, download, stream capture, reproduce, duplicate,
 archive, distribute, upload, publish, modify, translate, broadcast, perform, display, sell, transmit or retransmit
 the Content unless expressly permitted by Einthusan in writing."
 
-So be aware of this and use the script on your own risk :)
+Please use this utility responsibly and strictly at your own risk.
 
 [1]: https://www.einthusan.tv
-[2]: https://pip.pypa.io/en/latest/installing.html#install-pip
-[3]: http://python-distribute.org/pip_distribute.png
 [4]: https://einthusan.tv/terms/
