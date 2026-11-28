@@ -16,7 +16,7 @@ import json
 import logging
 import os
 import time
-
+import re
 import requests
 from requests.adapters import HTTPAdapter
 
@@ -67,20 +67,13 @@ def get_movie_url(session, page, movie_page_url):
     Parses a Einthusan movie page and retrieves the movie url.
     """
 
-    page_id = page.find('html')['data-pageid']
+    page_id = page.find('html')['data-pageid']                                  
     ejpingables = page.find('section', {'id': 'UIVideoPlayer'})['data-ejpingables']
-
-    movie_meta_url = movie_page_url.replace('movie', 'ajax/movie')
-
-    payload = {
-        'xEvent': 'UIVideoPlayer.PingOutcome',
-        'xJson': '{\"EJOutcomes\":\"' + ejpingables + '\",\"NativeHLS\":false}',
-        'gorilla.csrf.Token': page_id
-    }
-
-    encoded_url = session.post(movie_meta_url, data=payload).json()['Data']['EJLinks']
-
-    return decode(encoded_url)['MP4Link']
+    line = page.find('section', {'id': 'UIVideoPlayer'})['data-mp4-link']       
+    ip_addr_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')            
+    line = re.sub(ip_addr_regex, 'cdn2.einthusan.io', line)                     
+                                                                                
+    return line          
 
 
 def get_movie_name(page):
@@ -101,7 +94,7 @@ def start_download_movie(downloader,
 
     logging.debug('Start downloading movie [%s] from url %s', movie_name, movie_url)
 
-    slugified_filename = ''.join([c if c.isalnum() else '_' for c in movie_name])
+    slugified_filename = "_" + ''.join([c if c.isalnum() else '_' for c in movie_name])
     dest = os.path.join(path, slugified_filename)
 
     if not os.path.exists(dest):
@@ -191,7 +184,7 @@ def download_movie(args, movie_page_url):
 
     # get the web page of the movie
     page = get_movie_page(session, movie_page_url)
-
+    # print(page)
     # parse the page and get the url
     movie_url = get_movie_url(session, page, movie_page_url)
 
